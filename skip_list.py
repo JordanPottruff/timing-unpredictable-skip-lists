@@ -26,6 +26,39 @@ class SkipList:
             string_rep += "\n"
         return string_rep
 
+    # Search operation. Returns the node for the specified value.
+    def search(self, value: float):
+        current = self.start_node
+        height = current.height
+
+        # We can now traverse the skip list until we find the location at the bottom-most layer or we find that the
+        # element already exists.
+        while True:
+            # Next node is the node pointed to at the current level.
+            next_node = current.next_nodes[height]
+
+            # If our target value is less than the value of the next node at this level, then we need to drop down to
+            # a lower level (if possible).
+            if value < next_node.value:
+
+                # If we are at the bottom-most layer (the true linked list layer), then we cannot drop any further. This
+                # means that our target value does not exist, and we therefore return 'None'.
+                if height == 0:
+                    return None
+
+                # If we are not yet at the lowest level, then we need to continue moving down the layers.
+                else:
+                    height -= 1
+
+            # If the target value is larger than the next node value, then we simply jump across the linked list (in
+            # constant time) to reach this next_node. We will continue the search from there.
+            elif value > next_node.value:
+                current = next_node
+
+            # If the target value is equal to our next node, then we will return the node itself.
+            else:
+                return next_node
+
     # Insertion operation. Places the specified value into the skip list, if not already present.
     def insert(self, value: float):
         # Start the search at the starting node (left-most node in self.nodes list).
@@ -36,6 +69,7 @@ class SkipList:
         # inserted value. This will allow us to quickly update the connections at each level for the new node. The
         # prev_nodes variable will be a list with the node at level=0 at index 0, level=1 at 1, etc.
         prev_nodes = []
+
         # We can now traverse the skip list until we find the location at the bottom-most layer or we find that the
         # element already exists.
         while True:
@@ -45,26 +79,32 @@ class SkipList:
             # If our target value is less than the value of the next node at this level, then we need to drop down to
             # a lower level (if possible).
             if value < next_node.value:
+
                 # For the given level we just evaluated (stored in the variable 'height'), the current node must be the
                 # largest node that is still less than the target value. Otherwise, the above condition would not have
                 # been triggered yet.
                 prev_nodes.insert(0, current)
+
                 # If we are at the bottom-most layer (the true linked list layer), then we have found the correct
                 # location for our new value: immediately after the current node (which is before the next_node, which
                 # we established to be too large in the if-statement).
                 if height == 0:
+
                     # A helper method is used to insert the value as a new node. This method updates all the necessary
                     # pointers at each level that is less than or equal to the height of the new node (via the
                     # prev_nodes list).
                     self.__insert_into_path(prev_nodes, value)
                     return
+
                 # If we are not yet at the lowest level, then we need to continue moving down the layers.
                 else:
                     height -= 1
+
             # If the target value is larger than the next node value, then we simply jump across the linked list (in
             # constant time) to reach this next_node. We will continue the search from there.
             elif value > next_node.value:
                 current = next_node
+
             # If the target value is equal to our next node, then we will print a simple statement letting the user
             # know.
             else:
@@ -143,6 +183,7 @@ def main():
     for i in range(100):
         list.insert(i)
     print(list)
+    print(list.search(10))
 
 
 main()
