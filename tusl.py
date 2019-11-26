@@ -8,15 +8,16 @@ class TUSL:
     def __init__(self, skip_list):
         self.TUSL_skip_list = skip_list
 
-        # TODO: Initialized TUSL_nodes properly
+        # TODO: Initialized TUSL_nodes and origin properly
         self.TUSL_nodes = []
+        self.origin = 0
 
     # Creates a string representation of the TUSL object.
     def __str__(self):
         max_height = self.TUSL_skip_list.get_max_height()
         string_rep = ""
         for level in reversed(range(max_height+1)):
-            for node in self.TUSL_skip_list.nodes:
+            for node in self.TUSL_nodes:
                 if node.height >= level:
                     string_rep += str(node.value).center(5)
                 else:
@@ -28,13 +29,20 @@ class TUSL:
     def circular(self):
         first_node = self.TUSL_skip_list.nodes[0]
 
-        # Searches the node array for nodes that has a pointer to the end of the skip list
+        # Searches the through each node in the skip list for pointers to the end of the list
         for nodes in self.TUSL_skip_list.nodes:
             values = nodes.get_next_node_values()
             if 'inf' in values:
+                # Once the we find nodes that has a pointer to the end of the skip list, we store the index of the
+                # of the pointer into an array.
                 node_index = get_index_of_strings(values, 'inf')
+
+                # Iterate through the created node pointer index to the pointer of the first node index.
+                # This is possible since the first node of the list is a node of "-inf" that has pointers to the next
+                # nodes
                 for index in node_index:
                     nodes.next_nodes[index] = first_node.next_nodes[index]
+        # Finally, we remove the boundary nodes as the skip list is already circular.
         self.TUSL_nodes = self.TUSL_skip_list.nodes[1:-1]
 
     # Search operation. Returns the node for the specified value.
