@@ -27,11 +27,13 @@ class TUSL:
     # Creates a circular skip list by removing the two boundary nodes
     def circular(self):
         first_node = self.TUSL_skip_list.nodes[0]
+
+        # Searches the node array for nodes that has a pointer to the end of the skip list
         for nodes in self.TUSL_skip_list.nodes:
             values = nodes.get_next_node_values()
             if 'inf' in values:
-                n = get_index_of_strings(values, 'inf')
-                for index in n:
+                node_index = get_index_of_strings(values, 'inf')
+                for index in node_index:
                     nodes.next_nodes[index] = first_node.next_nodes[index]
         self.TUSL_nodes = self.TUSL_skip_list.nodes[1:-1]
 
