@@ -1,16 +1,39 @@
 import random
+from skip_list import SkipList
 
 
-class SkipList:
+class TUSL:
 
-    # Creates a new SkipList object, which is initially empty.
-    def __init__(self):
-        self.entry_node = None
-        self.nodes = []
+    # Creates a new TUSL object, based on the skip_list.
+    def __init__(self, skip_list):
+        self.TUSL_skip_list = skip_list
+
+        # TODO: Initialized TUSL_nodes properly
+        self.TUSL_nodes = []
 
     # Creates a string representation of the TUSL object.
     def __str__(self):
-        pass
+        max_height = self.TUSL_skip_list.get_max_height()
+        string_rep = ""
+        for level in reversed(range(max_height+1)):
+            for node in self.TUSL_skip_list.nodes:
+                if node.height >= level:
+                    string_rep += str(node.value).center(5)
+                else:
+                    string_rep += "     "
+            string_rep += "\n"
+        return string_rep
+
+    # Creates a circular skip list by removing the two boundary nodes
+    def circular(self):
+        first_node = self.TUSL_skip_list.nodes[0]
+        for nodes in self.TUSL_skip_list.nodes:
+            values = nodes.get_next_node_values()
+            if 'inf' in values:
+                n = get_index_of_strings(values, 'inf')
+                for index in n:
+                    nodes.next_nodes[index] = first_node.next_nodes[index]
+        self.TUSL_nodes = self.TUSL_skip_list.nodes[1:-1]
 
     # Search operation. Returns the node for the specified value.
     def search(self, value: float):
@@ -49,12 +72,26 @@ def random_height():
     return height
 
 
+# Generate an index array, where the index where the str appears
+def get_index_of_strings(arr, str):
+    index = []
+    for i, string in enumerate(arr):
+        if string == str:
+            index.append(i)
+    return index
+
+
 def main():
-    list = SkipList()
+    skip_list = SkipList()
     for i in range(100):
-        list.insert(i)
-    print(list)
-    print(list.search(10))
+        skip_list.insert(i)
+
+    tusl = TUSL(skip_list)
+    tusl.circular()
+
+    print(tusl)
+    for i in tusl.TUSL_nodes:
+        print(i)
 
 
-# main()
+main()

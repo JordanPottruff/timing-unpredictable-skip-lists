@@ -148,19 +148,33 @@ class SkipList:
         # Lastly, we need to update the underlying linked list to contain the new node as well.
         self.nodes.insert(self.nodes.index(prev_nodes[0])+1, new_node)
 
+    # Return the max height of the skip list
+    def get_max_height(self):
+        count = 0
+        for nodes in self.nodes:
+            if nodes.height > count:
+                count = nodes.height
+        return count
+
 
 class Node:
-
     def __init__(self, value: float, height: int, next_nodes: list):
         self.value = value
         self.height = height
         self.next_nodes = next_nodes
 
     def __str__(self):
-        return "val: {}, height: {}, next_nodes: {}".format(self.value, self.height, str(self.next_nodes))
+        next_nodes = self.get_next_node_values()
+        return "val: {}, height: {}, next_nodes: {}".format(self.value, self.height, next_nodes)
 
     def add_next_node(self, node):
         self.next_nodes.append(node)
+
+    def get_next_node_values(self):
+        next_nodes = []
+        for values in self.next_nodes:
+            next_nodes.append(str(values.value))
+        return next_nodes
 
 
 # Creates the "bounding notes" which are nodes with negative and positive infinity values.
@@ -179,11 +193,11 @@ def random_height():
 
 
 def main():
-    list = SkipList()
-    for i in range(100):
-        list.insert(i)
-    print(list)
-    print(list.search(10))
+    pass
+    # list = SkipList()
+    # for i in range(1000):
+    #     list.insert(i)
+    # print(list)
 
 
 main()
