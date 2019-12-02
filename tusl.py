@@ -13,6 +13,7 @@ class TUSL:
         # TODO: Initialized TUSL_nodes and origin properly
         self.TUSL_nodes = []
         self.origin_target = self.random_node()
+        self.circular()
 
     # Creates a string representation of the TUSL object.
     def __str__(self):
@@ -149,7 +150,6 @@ def main():
         skip_list.insert(i)
 
     tusl = TUSL(skip_list)
-    tusl.circular()
 
     print(tusl)
 
