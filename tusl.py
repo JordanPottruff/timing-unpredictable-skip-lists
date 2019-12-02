@@ -1,4 +1,5 @@
 import random
+from bisect import bisect_left
 from skip_list import SkipList
 
 
@@ -7,10 +8,11 @@ class TUSL:
     # Creates a new TUSL object, based on the skip_list.
     def __init__(self, skip_list):
         self.TUSL_skip_list = skip_list
+        self.max_height = self.TUSL_skip_list.get_max_height()
 
         # TODO: Initialized TUSL_nodes and origin properly
         self.TUSL_nodes = []
-        self.origin = 0
+        self.origin_target = self.random_node()
 
     # Creates a string representation of the TUSL object.
     def __str__(self):
@@ -44,10 +46,44 @@ class TUSL:
                     nodes.next_nodes[index] = first_node.next_nodes[index]
         # Finally, we remove the boundary nodes as the skip list is already circular.
         self.TUSL_nodes = self.TUSL_skip_list.nodes[1:-1]
+        self.origin_target = self.random_node()
 
     # Search operation. Returns the node for the specified value.
     def search(self, value: float):
-        pass
+        ogtg = self.origin_target
+        max_h = self.max_height
+        print("OGTG: " + str(ogtg))
+        layers = self.nodes_per_layer()
+        for i, layer in enumerate(layers):
+            print(i)
+            for node in layer:
+                print("NODE " + str(node))
+                print(node.next_nodes[i])
+            break
+
+
+
+
+
+
+
+        # start = self.origin
+        # print("value: " + str(value))
+        # print(start)
+        #
+        # while True:
+        #     current = start
+        #     next_node = current.next_nodes[start.height]
+        #
+        #     if current.value == value:
+        #         return current
+        #     elif next_node.value < value:
+        #         if next_node is not current:
+        #             current = next_node
+        #         else:
+        #             if current.height == 0:
+        #                 pass
+        return False
 
     # Insertion operation. Places the specified value into the skip list, if not already present.
     def insert(self, value: float):
@@ -58,6 +94,22 @@ class TUSL:
     # immediate preceding node for level=1 at 1, and so on.
     def __insert_into_path(self, prev_nodes, value):
         pass
+
+    # Returns a 2D list of nodes by layers, each index represents the layer (0 based)
+    def nodes_per_layer(self):
+        max_h = self.max_height
+        layers = [[] for i in range(max_h+1)]
+        for nodes in self.TUSL_nodes:
+            layers[nodes.height].append(nodes)
+        return layers
+
+    # Find a random node in the TUSL
+    def random_node(self):
+        if len(self.TUSL_nodes) is not 0:
+            return random.choice(self.TUSL_nodes)
+        else:
+            return None
+
 
 
 class Node:
@@ -100,8 +152,14 @@ def main():
     tusl.circular()
 
     print(tusl)
+
     for i in tusl.TUSL_nodes:
         print(i)
+
+    print("----------- EXPERIEMENT -------------")
+    print(tusl.search(0))
+
+
 
 
 main()

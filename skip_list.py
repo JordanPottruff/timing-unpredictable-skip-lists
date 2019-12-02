@@ -150,11 +150,7 @@ class SkipList:
 
     # Return the max height of the skip list
     def get_max_height(self):
-        count = 0
-        for nodes in self.nodes:
-            if nodes.height > count:
-                count = nodes.height
-        return count
+        return self.nodes[0].height
 
 
 class Node:
@@ -193,11 +189,11 @@ def random_height():
 
 
 def main():
-    pass
-    # list = SkipList()
-    # for i in range(1000):
-    #     list.insert(i)
-    # print(list)
+    list = SkipList()
+    for i in range(1000):
+        list.insert(i)
+    print(list)
+    print(list.search(2))
 
 
-main()
+# main()
