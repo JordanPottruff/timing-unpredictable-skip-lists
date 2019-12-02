@@ -10,6 +10,7 @@ class SkipList:
         # at the start_node. None the less, maintaining a linked list representing the bottom layer of the skip list
         # makes the __str__ implementation easier.
         self.nodes = [self.start_node, self.end_node]
+        self.tallest_node = None
 
     # Creates a string representation of the skip list object. The output should be a string that, when printed,
     # resembles the skip list diagrams found online.
@@ -125,6 +126,8 @@ class SkipList:
             # When we visit a layer that is higher than the previously highest node (which is also the height of the
             # start and ending nodes), then we can simply link this node to the start and end nodes.
             if i > self.start_node.height:
+                # Reset tallest node to be the current node.
+                self.tallest_node = new_node
                 # The new node is added as the next node for the starting node at the current height (i).
                 self.start_node.add_next_node(new_node)
                 # The next node of the new node is the ending node.

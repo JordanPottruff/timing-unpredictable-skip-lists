@@ -12,8 +12,25 @@ class TUSL:
 
         # TODO: Initialized TUSL_nodes and origin properly
         self.TUSL_nodes = []
-        self.origin_target = self.random_node()
         self.circular()
+
+    def get_origin(self, target_value):
+        node = self.TUSL_skip_list.tallest_node
+        layer = node.height
+
+        origin = [None for i in range(layer)]
+        while layer >= 0:
+            next_node = node.next_nodes[layer]
+            print(node.value)
+            print(next_node.value)
+            print(target_value)
+            print()
+            if node is next_node or node.value <= target_value <= next_node.value or next_node.value <= target_value <= node.value:
+                origin[layer] = node
+                layer -= 1
+            else:
+                node = next_node
+        return origin
 
     # Creates a string representation of the TUSL object.
     def __str__(self):
@@ -153,11 +170,13 @@ def main():
 
     print(tusl)
 
+
     for i in tusl.TUSL_nodes:
         print(i)
 
     print("----------- EXPERIEMENT -------------")
-    print(tusl.search(0))
+    print(tusl.get_origin(20))
+    # print(tusl.search(0))
 
 
 
