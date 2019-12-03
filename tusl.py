@@ -18,16 +18,21 @@ class TUSL:
         node = self.TUSL_skip_list.tallest_node
         layer = node.height
 
-        origin = [None for i in range(layer)]
+        origin = [None for i in range(layer+1)]
         while layer >= 0:
             next_node = node.next_nodes[layer]
-            print(node.value)
-            print(next_node.value)
-            print(target_value)
-            print()
-            if node is next_node or node.value <= target_value <= next_node.value or next_node.value <= target_value <= node.value:
+            if node is next_node or node.value <= target_value <= next_node.value:
                 origin[layer] = node
                 layer -= 1
+            elif node.value > next_node.value:
+                if target_value <= next_node.value:
+                    origin[layer] = node
+                    layer -= 1
+                elif target_value > next_node.value:
+                    node = next_node
+                elif target_value > node.value:
+                    origin[layer] = node
+                    layer -= 1
             else:
                 node = next_node
         return origin
@@ -171,11 +176,13 @@ def main():
     print(tusl)
 
 
-    for i in tusl.TUSL_nodes:
-        print(i)
+    #for i in tusl.TUSL_nodes:
+    #    print(i)
 
     print("----------- EXPERIEMENT -------------")
-    print(tusl.get_origin(20))
+    origin = tusl.get_origin(20)
+    for node in origin:
+        print(node)
     # print(tusl.search(0))
 
 
