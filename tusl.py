@@ -64,50 +64,37 @@ class TUSL:
                     node = next_node
             else:
                 node = next_node
-        return Node(float(target_value), len(origin)-1, origin)
+        return origin
 
     # Search operation. Returns the node for the specified value.
     def search(self, value: float):
-        print("Search")
         target = random.randint(self.nodes[0].value, self.nodes[-1].value)
-        print("Target: " + str(target))
-        current = self.get_origin(target)
-        print("Origin: " + str(current))
-        height = current.height
+        origin = self.get_origin(target)
+        nodes = [node.next_nodes[i] for i, node in enumerate(origin)]
+        height = len(nodes) - 1
 
         while height >= 0:
-            print(current)
-            print(height)
-            next_node = current.next_nodes[height]
+            cur_node = nodes[height]
+            next_node = cur_node.next_nodes[height]
 
-            if current.value == value:
-                return current
+            if cur_node.value == value:
+                return cur_node
             elif next_node.value == value:
                 return next_node
-            elif current is next_node or current.value < value < next_node.value:
-                print("1")
+            elif cur_node is next_node or cur_node.value < value < next_node.value:
                 if height == 0:
                     return None
                 else:
                     height -= 1
-            elif current.value > next_node.value:
-                print("2")
-                print("current.value=" + str(current.value))
-                print("next_node.value=" + str(next_node.value))
-                if value < next_node.value or value > current.value:
-                    print("2-1")
+            elif cur_node.value > next_node.value:
+                if value < next_node.value or value > cur_node.value:
                     height -= 1
                 else:
-                    current = next_node
+                    nodes = cur_node.next_nodes
             else:
-                print("3")
-                current = next_node
-            print()
+                nodes = cur_node.next_nodes
         print("Shouldnt happen")
-        return current
-
-
-
+        return None
 
     # Returns a 2D list of nodes by layers, each index represents the layer (0 based)
     def nodes_per_layer(self):
@@ -152,8 +139,8 @@ def main():
     origin = tusl.get_origin(84)
     # for i in range(100):
     #    print(tusl.get_origin(i))
-    print(tusl.search(20))
-
+    for i in range(100):
+        print(tusl.search(i))
 
 
 
