@@ -1,48 +1,24 @@
 import random
-from bisect import bisect_left
-from skip_list import SkipList
+from skip_list import SkipList, Node
 
 
 class TUSL:
 
     # Creates a new TUSL object, based on the skip_list.
     def __init__(self, skip_list):
-        self.TUSL_skip_list = skip_list
-        self.max_height = self.TUSL_skip_list.get_max_height()
+        self.skip_list = skip_list
+        self.max_height = self.skip_list.get_max_height()
 
         # TODO: Initialized TUSL_nodes and origin properly
-        self.TUSL_nodes = []
+        self.nodes = []
         self.circular()
-
-    def get_origin(self, target_value):
-        node = self.TUSL_skip_list.tallest_node
-        layer = node.height
-
-        origin = [None for i in range(layer+1)]
-        while layer >= 0:
-            next_node = node.next_nodes[layer]
-            if node is next_node or node.value <= target_value <= next_node.value:
-                origin[layer] = node
-                layer -= 1
-            elif node.value > next_node.value:
-                if target_value <= next_node.value:
-                    origin[layer] = node
-                    layer -= 1
-                elif target_value > next_node.value:
-                    node = next_node
-                elif target_value > node.value:
-                    origin[layer] = node
-                    layer -= 1
-            else:
-                node = next_node
-        return origin
 
     # Creates a string representation of the TUSL object.
     def __str__(self):
-        max_height = self.TUSL_skip_list.get_max_height()
+        max_height = self.skip_list.get_max_height()
         string_rep = ""
-        for level in reversed(range(max_height+1)):
-            for node in self.TUSL_nodes:
+        for level in reversed(range(max_height + 1)):
+            for node in self.nodes:
                 if node.height >= level:
                     string_rep += str(node.value).center(5)
                 else:
@@ -52,10 +28,10 @@ class TUSL:
 
     # Creates a circular skip list by removing the two boundary nodes
     def circular(self):
-        first_node = self.TUSL_skip_list.nodes[0]
+        first_node = self.skip_list.nodes[0]
 
         # Searches the through each node in the skip list for pointers to the end of the list
-        for nodes in self.TUSL_skip_list.nodes:
+        for nodes in self.skip_list.nodes:
             values = nodes.get_next_node_values()
             if 'inf' in values:
                 # Once the we find nodes that has a pointer to the end of the skip list, we store the index of the
@@ -68,85 +44,78 @@ class TUSL:
                 for index in node_index:
                     nodes.next_nodes[index] = first_node.next_nodes[index]
         # Finally, we remove the boundary nodes as the skip list is already circular.
-        self.TUSL_nodes = self.TUSL_skip_list.nodes[1:-1]
-        self.origin_target = self.random_node()
+        self.nodes = self.skip_list.nodes[1:-1]
+
+    def get_origin(self, target_value):
+        node = self.skip_list.tallest_node
+        layer = node.height
+
+        origin = [None for i in range(layer+1)]
+        while layer >= 0:
+            next_node = node.next_nodes[layer]
+            if node is next_node or node.value <= target_value <= next_node.value:
+                origin[layer] = node
+                layer -= 1
+            elif node.value > next_node.value:
+                if target_value <= next_node.value or target_value > node.value:
+                    origin[layer] = node
+                    layer -= 1
+                else:
+                    node = next_node
+            else:
+                node = next_node
+        return Node(float(target_value), len(origin)-1, origin)
 
     # Search operation. Returns the node for the specified value.
     def search(self, value: float):
-        ogtg = self.origin_target
-        max_h = self.max_height
-        print("OGTG: " + str(ogtg))
-        layers = self.nodes_per_layer()
-        for i, layer in enumerate(layers):
-            print(i)
-            for node in layer:
-                print("NODE " + str(node))
-                print(node.next_nodes[i])
-            break
+        print("Search")
+        target = random.randint(self.nodes[0].value, self.nodes[-1].value)
+        print("Target: " + str(target))
+        current = self.get_origin(target)
+        print("Origin: " + str(current))
+        height = current.height
+
+        while height >= 0:
+            print(current)
+            print(height)
+            next_node = current.next_nodes[height]
+
+            if current.value == value:
+                return current
+            elif next_node.value == value:
+                return next_node
+            elif current is next_node or current.value < value < next_node.value:
+                print("1")
+                if height == 0:
+                    return None
+                else:
+                    height -= 1
+            elif current.value > next_node.value:
+                print("2")
+                print("current.value=" + str(current.value))
+                print("next_node.value=" + str(next_node.value))
+                if value < next_node.value or value > current.value:
+                    print("2-1")
+                    height -= 1
+                else:
+                    current = next_node
+            else:
+                print("3")
+                current = next_node
+            print()
+        print("Shouldnt happen")
+        return current
 
 
 
-
-
-
-
-        # start = self.origin
-        # print("value: " + str(value))
-        # print(start)
-        #
-        # while True:
-        #     current = start
-        #     next_node = current.next_nodes[start.height]
-        #
-        #     if current.value == value:
-        #         return current
-        #     elif next_node.value < value:
-        #         if next_node is not current:
-        #             current = next_node
-        #         else:
-        #             if current.height == 0:
-        #                 pass
-        return False
-
-    # Insertion operation. Places the specified value into the skip list, if not already present.
-    def insert(self, value: float):
-        pass
-
-    # This is a helper function that handles the complexity of creating a new node given a list of the nodes that come
-    # before it at each layer. The prev_nodes list has the immediate preceding node for level=0 at index 0, and the
-    # immediate preceding node for level=1 at 1, and so on.
-    def __insert_into_path(self, prev_nodes, value):
-        pass
 
     # Returns a 2D list of nodes by layers, each index represents the layer (0 based)
     def nodes_per_layer(self):
         max_h = self.max_height
         layers = [[] for i in range(max_h+1)]
-        for nodes in self.TUSL_nodes:
+        for nodes in self.nodes:
             layers[nodes.height].append(nodes)
         return layers
-
-    # Find a random node in the TUSL
-    def random_node(self):
-        if len(self.TUSL_nodes) is not 0:
-            return random.choice(self.TUSL_nodes)
-        else:
-            return None
-
-
-
-class Node:
-
-    def __init__(self, value: float, height: int, next_nodes: list):
-        self.value = value
-        self.height = height
-        self.next_nodes = next_nodes
-
-    def __str__(self):
-        return "val: {}, height: {}, next_nodes: {}".format(self.value, self.height, str(self.next_nodes))
-
-    def add_next_node(self, node):
-        self.next_nodes.append(node)
 
 
 # Generates a random height according to a coin flip probability of continuing to the next level.
@@ -180,10 +149,11 @@ def main():
     #    print(i)
 
     print("----------- EXPERIEMENT -------------")
-    origin = tusl.get_origin(20)
-    for node in origin:
-        print(node)
-    # print(tusl.search(0))
+    origin = tusl.get_origin(84)
+    # for i in range(100):
+    #    print(tusl.get_origin(i))
+    print(tusl.search(20))
+
 
 
 
