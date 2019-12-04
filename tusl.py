@@ -7,7 +7,7 @@ class TUSL:
     # Creates a new TUSL object, based on the skip_list.
     def __init__(self, skip_list):
         self.skip_list = skip_list
-        self.max_height = self.skip_list.get_max_height()
+        self.tallest_node = skip_list.tallest_node
 
         # TODO: Initialized TUSL_nodes and origin properly
         self.nodes = []
@@ -47,13 +47,13 @@ class TUSL:
         self.nodes = self.skip_list.nodes[1:-1]
 
     def get_origin(self, target_value):
-        node = self.skip_list.tallest_node
+        node = self.tallest_node
         layer = node.height
 
         origin = [None for i in range(layer+1)]
         while layer >= 0:
             next_node = node.next_nodes[layer]
-            if node is next_node or node.value <= target_value <= next_node.value:
+            if node is next_node or node.value < target_value <= next_node.value:
                 origin[layer] = node
                 layer -= 1
             elif node.value > next_node.value:
@@ -68,22 +68,25 @@ class TUSL:
 
     # Search operation. Returns the node for the specified value.
     def search(self, value: float):
-        target = random.randint(self.nodes[0].value, self.nodes[-1].value)
-        origin = self.get_origin(target)
+        target = random.choice(self.nodes)
+        origin = self.get_origin(target.value)
         nodes = [node.next_nodes[i] for i, node in enumerate(origin)]
         height = len(nodes) - 1
 
+        result = None
         while height >= 0:
             cur_node = nodes[height]
             next_node = cur_node.next_nodes[height]
 
             if cur_node.value == value:
-                return cur_node
+                result = cur_node
+                break
             elif next_node.value == value:
-                return next_node
+                result = next_node
+                break
             elif cur_node is next_node or cur_node.value < value < next_node.value:
                 if height == 0:
-                    return None
+                    break
                 else:
                     height -= 1
             elif cur_node.value > next_node.value:
@@ -93,12 +96,57 @@ class TUSL:
                     nodes = cur_node.next_nodes
             else:
                 nodes = cur_node.next_nodes
-        print("Shouldnt happen")
-        return None
+        self.new_adjust_height(target, origin)
+        return result
+
+    def new_adjust_height(self, node, prev_nodes):
+        new_height = random_height()
+        new_next_nodes = [node.next_nodes[i] if i <= node.height else None for i in range(new_height+1)]
+
+        # Handle tallest node being shortened.
+        if node is self.tallest_node and new_height < node.height:
+            # Start at the top of the node.
+            level = node.height
+            # Find the highest level that contains another node. To check, consider the fact that a node points to
+            # itself if it is the only node at that level.
+            while node.next_nodes[level] is node and level > new_height:
+                level -= 1
+            # Set the tallest node to now be this next node.
+            self.tallest_node = node.next_nodes[level]
+
+            while level > new_height:
+                prev_nodes[level].next_nodes[level] = node.next_nodes[level]
+                level -= 1
+
+            # End-result so far: either
+            # (1) is on the same level as the new tallest node.
+            # (2) has made it down to the new height.
+        # Handle (one of) tallest nodes being made taller.
+        elif new_height > self.tallest_node.height:
+            # Fill any points between the old height and the previous highest layer
+            for level in range(node.height+1, self.tallest_node.height+1):
+                new_next_nodes[level] = prev_nodes[level].next_nodes[level]
+                prev_nodes[level].next_nodes[level] = node
+
+            # Increment from one above the previous highest level to the new highest level (inclusive).
+            for level in range(self.tallest_node.height+1, new_height+1):
+                new_next_nodes[level] = node
+            # By definition, this node must become the new tallest node.
+            self.tallest_node = node
+        elif new_height > node.height:
+            for i in range(node.height + 1, new_height + 1):
+                new_next_nodes[i] = prev_nodes[i].next_nodes[i]
+                prev_nodes[i].next_nodes[i] = node
+        elif new_height < node.height:
+            for i in range(node.height, new_height, -1):
+                prev_nodes[i].next_nodes[i] = node.next_nodes[i]
+
+        node.next_nodes = new_next_nodes
+        node.height = new_height
 
     # Returns a 2D list of nodes by layers, each index represents the layer (0 based)
     def nodes_per_layer(self):
-        max_h = self.max_height
+        max_h = self.tallest_node.height
         layers = [[] for i in range(max_h+1)]
         for nodes in self.nodes:
             layers[nodes.height].append(nodes)
@@ -137,10 +185,12 @@ def main():
 
     print("----------- EXPERIEMENT -------------")
     origin = tusl.get_origin(84)
+    # for o in origin:
+    #    print(o)
     # for i in range(100):
     #    print(tusl.get_origin(i))
     for i in range(100):
-        print(tusl.search(i))
+        tusl.search(i)
 
 
 
