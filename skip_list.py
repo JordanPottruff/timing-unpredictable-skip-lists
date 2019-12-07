@@ -1,3 +1,5 @@
+# skip_list.py
+# Implementation of the normal skip list data structure.
 import random
 
 

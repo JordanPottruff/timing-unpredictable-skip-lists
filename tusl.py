@@ -1,5 +1,6 @@
+# tusl.py
+# Implementation of the TUSL data structure.
 import random
-from skip_list import SkipList, Node
 
 
 class TUSL:
@@ -96,10 +97,10 @@ class TUSL:
                     nodes = cur_node.next_nodes
             else:
                 nodes = cur_node.next_nodes
-        self.new_adjust_height(target, origin)
+        self.adjust_height(target, origin)
         return result
 
-    def new_adjust_height(self, node, prev_nodes):
+    def adjust_height(self, node, prev_nodes):
         new_height = random_height()
         new_next_nodes = [node.next_nodes[i] if i <= node.height else None for i in range(new_height+1)]
 
@@ -169,30 +170,3 @@ def get_index_of_strings(arr, str):
             index.append(i)
     return index
 
-
-def main():
-    skip_list = SkipList()
-    for i in range(100):
-        skip_list.insert(i)
-
-    tusl = TUSL(skip_list)
-
-    print(tusl)
-
-
-    #for i in tusl.TUSL_nodes:
-    #    print(i)
-
-    print("----------- EXPERIEMENT -------------")
-    origin = tusl.get_origin(84)
-    # for o in origin:
-    #    print(o)
-    # for i in range(100):
-    #    print(tusl.get_origin(i))
-    for i in range(100):
-        tusl.search(i)
-
-
-
-
-main()
